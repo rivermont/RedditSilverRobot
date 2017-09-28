@@ -20,6 +20,7 @@ def validate_comment(comment):
     #    - Must contain command
     #    - Must not have already replied
     #    - Must not reply to self
+    #    - Cannot give silver to yourself
     if command in comment.body.lower():
         queue = pickle.load(open(file, "rb"))
         if not queue:
@@ -33,6 +34,9 @@ def validate_comment(comment):
         if get_receiver(comment) == '[deleted]':
             _register_comment(comment, "Parent comment was deleted!")
             return False
+        if '{0} {1}'.format(command, comment.author.name) in comment.body.lower() or comment.parent().author.name == comment.author.name:
+          _register_comment(comment, "You can't give yourself silver!")
+          return False
         comment.refresh()
         for child_comment in comment.replies:
             if child_comment.author.name == "RedditSilverRobot":
